@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta http-equiv='content-language' content='th' />
+		<meta charset="utf-8">
+		<title>User Training</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="stylesheet" type="text/css" href="assets/css/select2.min.css" />
+		<link rel="stylesheet" type="text/css" href="assets/css/select2-bootstrap.css" />
+		<style>
+			@media print  
+			{
+				div{
+					page-break-inside: avoid;
+				}
+				
+				.no-print, .no-print *
+				{
+					display: none !important;
+				}
+			}
+			label {
+				display: inline-block;
+				max-width: 100%;
+				margin-bottom: 5px;
+				font-weight: 700;
+			}
+			.form-group {
+				margin-bottom: 15px;
+			}
+			
+			table {
+			  border-collapse: collapse;
+			}
+
+			table, th, td {
+			  border: 1px solid #a09c9c;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="form-group">
+			<label>เลือกห้องอบรม : </label>
+			<select id="select_room" class="select2" data-placeholder="ห้องอบรม"  style="width:250px;"></select>
+		</div>
+		<div class="form-group">
+			<label>เลือกหน่วยงาน : </label>
+			<select id="select_org" class="form-control" data-placeholder="พิมพ์ชื่อหน่วยงาน" style="width:250px;"></select>
+		</div>
+		<div id="result"></div>
+	</body>
+	<script src="assets/js/jquery-1.10.2.min.js"></script>
+	<script src="assets/js/jszip.js"></script>
+	<script src="assets/js/xlsx.js"></script>
+	<script src="assets/js/select2.min.js"></script>
+	<script type="text/javascript">
+		
+		
+		$(document).ready(function(){
+			$('#select_room').select2({
+					ajax : { 
+					url : "assets/data/data_room.json?v="+Math.floor(Date.now() / 1000),
+					dataType : 'json',
+					type: "GET",
+					data : function(params){
+						return {
+							 term: params
+						};
+					},
+					processResults: function (data, params) {
+						return {
+			                results: $.map(data, function (item) {
+			                    return {
+			                        text: item.room_text,
+			                        id: item.room_id
+			                    }
+			                })
+			            };
+					},
+					cache: true
+				}
+			}).on('select2:select', function (e) {
+				var data = e.params.data;
+				console.log(data);
+				initOrg(data);
+			});
+				
+			function initOrg(data){
+				$.getJSON( "assets/data/data_user_bh"+data.id+".json?v="+Math.floor(Date.now() / 1000), function( data ) {
+				  $('#select_org').select2({
+						minimumInputLength: 1,
+						minimumResultsForSearch: 10,
+						maximumSelectionSize: 10,
+						data: $.map(data, function (item) {
+									return {
+										text: item.ORGABBR,
+										id: item.ORGCODE
+									}
+								})
+							
+					}).on('select2:select', function (e) {
+						var dataSelect = e.params.data;
+	
+						var findIndex = data.findIndex(x => x.ORGCODE === dataSelect.id);
+						if(findIndex != -1){
+							if(data[findIndex] != undefined){
+								var html = '';
+								var dataOrg = data[findIndex];
+								$.each(dataOrg.item,function(i,item){
+									html += '<div><table style="font-size:12px;"><tr><td rowspan="3" style="width: 250px;"><center><b>'+dataOrg.ORGABBR+'</b></center></td><td colspan=3><center><b>"URL : http://172.31.191.171:8989"</b></center></td></tr>'+
+											'<tr><td colspan=3><center><b>เลขบัตรประชาชน : 1111111111111</b></center></td></tr>'+
+											'<tr><td style="width: 150px;"><center><b>ประจำวัน</b></center></td><td style="width: 150px;"><center><b>พงส.</b></center></td><td style="width: 150px;"><center><b>หัวหน้าสถานี</b></center></td></tr>'+
+											'<tr><td><center><b>รหัสผู้ใช้งาน</b></center></td><td><center>'+item.FR+'</center></td><td><center>'+item.IR+'</center></td><td><center>'+item.LD+'</center></td></tr>'+
+											'<tr><td><center><b>รหัสผ่าน</b></center></td><td><center>12345678</center></td><td><center>12345678</center></td><td><center>12345678</center></td></tr>'+
+											'</table></div>';
+								});
+									
+								$('#result').html(html);
+							}
+						}
+						else{
+							$('#result').html("Not Found.");
+						}
+					});
+				});
+
+				
+			}
+			
+			
+		});
+	</script>
+</html>

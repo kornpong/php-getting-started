@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta http-equiv='content-language' content='th' />
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Generate Form User Training</title>
+		<style>
+			@media print  
+			{
+				div{
+					page-break-inside: avoid;
+				}
+				
+				.no-print, .no-print *
+				{
+					display: none !important;
+				}
+			}
+			
+			
+			table {
+			  border-collapse: collapse;
+			}
+
+			table, th, td {
+			  border: 1px solid #a09c9c;
+			}
+		</style>
+	</head>
+	<body>
+		<form enctype="multipart/form-data" class="no-print">
+			<input id="upload" type=file  name="files">
+		</form>
+		<span id="count_org" class="no-print"></span>
+		<a href="javascript:void(0);" id="btn_load_data">Load Data</a>
+		<div id="result"></div>
+	</body>
+	<script src="assets/js/jquery-1.10.2.min.js"></script>
+	<script src="assets/js/jszip.js"></script>
+	<script src="assets/js/xlsx.js"></script>
+	<script type="text/javascript">
+		
+		
+		$(document).ready(function(){
+			var dataGroup = [];
+			
+			function generate(data){
+				var html = '';
+				var count = 0;
+				dataGroup = [];
+				
+				for(i = 0; i < data.length; i+=3){
+					var attr = Object.getOwnPropertyNames(data[i]);			
+					html += '<div><table style="font-size:12px;"><tr><td rowspan="3" style="width: 250px;"><center><b>'+data[i][attr[5]]+'</b></center></td><td colspan=3><center><b>"URL : http://172.31.191.171:8989"</b></center></td></tr>'+
+						'<tr><td colspan=3><center><b>เลขบัตรประชาชน : 1111111111111</b></center></td></tr>'+
+						'<tr><td style="width: 150px;"><center><b>ประจำวัน</b></center></td><td style="width: 150px;"><center><b>พงส.</b></center></td><td style="width: 150px;"><center><b>หัวหน้าสถานี</b></center></td></tr>'+
+						'<tr><td><center><b>รหัสผู้ใช้งาน</b></center></td><td><center>'+data[i][attr[2]]+'</center></td><td><center>'+data[i+1][attr[2]]+'</center></td><td><center>'+data[i+2][attr[2]]+'</center></td></tr>'+
+						'<tr><td><center><b>รหัสผ่าน</b></center></td><td><center>12345678</center></td><td><center>12345678</center></td><td><center>12345678</center></td></tr>'+
+						'</table></div>';
+					count++;	
+					
+					var orgcode = data[i][attr[6]];
+					var findIndex = dataGroup.findIndex(x => x.ORGCODE === orgcode);
+					if(findIndex == -1){
+						dataGroup.push({'ORGCODE' : orgcode , 'ORGABBR' : data[i][attr[5]] , 'item' : []});
+						findIndex = dataGroup.length-1;
+					}
+					
+					dataGroup[findIndex].item.push({'FR' : data[i][attr[2]] , 'IR' : data[i+1][attr[2]] , 'LD' : data[i+2][attr[2]]});
+					//console.log(attr);
+				}
+				$('#count_org').html('จำนวน '+count+' สถานี');
+				$('#result').html(html);
+				
+			}
+		
+			$('#upload').on('change', function(event){
+
+				var reader = new FileReader();
+				reader.onload = function (e) {
+					//console.log(e);
+					//var jsonObj = JSON.parse(e.target.result);
+					var data = e.target.result;
+					  var workbook = XLSX.read(data, {
+						type: 'binary'
+					  });
+					 
+					  var sheetName = workbook.SheetNames[0];
+					  var XL_row_object = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[sheetName]);
+					  
+						var json_object = JSON.stringify(XL_row_object);
+						//console.log(JSON.parse(json_object));
+						//jQuery( '#xlx_json' ).val( json_object );
+						generate(XL_row_object);
+						
+					  /*workbook.SheetNames.forEach(function(sheetName) {
+						// Here is your object
+						var XL_row_object = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[sheetName]);
+						var json_object = JSON.stringify(XL_row_object);
+						console.log(JSON.parse(json_object));
+						//jQuery( '#xlx_json' ).val( json_object );
+						generate(json_object);
+					  })*/
+					
+				}
+				
+				reader.onerror = function(ex) {
+				  console.log(ex);
+				};
+				
+				//reader.readAsDataURL(input_files[0]);
+				reader.readAsBinaryString(event.target.files[0]);
+				
+			});
+			
+			$('#btn_load_data').on('click',function(e){
+				e.preventDefault();
+				var jsonData = JSON.stringify(dataGroup);
+				
+				var type = 'text/plain';
+				var name = 'data_user.json';
+							
+				var a = document.createElement("a");
+				var file = new Blob([jsonData], {type: type});
+				a.href = URL.createObjectURL(file);
+				a.download = name;
+				a.click();
+			});
+		});
+	</script>
+</html>
