@@ -29,11 +29,13 @@
 		</style>
 	</head>
 	<body>
-		<form enctype="multipart/form-data" class="no-print">
-			<input id="upload" type=file  name="files">
-		</form>
-		<span id="count_org" class="no-print"></span>
-		<a href="javascript:void(0);" id="btn_load_data">Load Data</a>
+		<div class="no-print">
+			<form enctype="multipart/form-data" class="">
+				<input id="upload" type=file  name="files">
+			</form>
+			<span id="count_org" class=""></span>
+			<a href="javascript:void(0);" id="btn_load_data">Load Data</a>
+		</div>
 		<div id="result"></div>
 	</body>
 	<script src="assets/js/jquery-1.10.2.min.js"></script>
@@ -52,22 +54,23 @@
 				
 				for(i = 0; i < data.length; i+=3){
 					var attr = Object.getOwnPropertyNames(data[i]);			
-					html += '<div><table style="font-size:12px;"><tr><td rowspan="3" style="width: 250px;"><center><b>'+data[i][attr[5]]+'</b></center></td><td colspan=3><center><b>"URL : http://172.31.191.171:8989"</b></center></td></tr>'+
+					html += '<div><table style="font-size:12px;"><tr><td rowspan="3" style="width: 200px;"><center><b>'+data[i][attr[6]]+'</b></center></td><td colspan=3><center><b>"URL : http://172.31.191.171:8989"</b></center></td></tr>'+
 						'<tr><td colspan=3><center><b>เลขบัตรประชาชน : 1111111111111</b></center></td></tr>'+
 						'<tr><td style="width: 150px;"><center><b>ประจำวัน</b></center></td><td style="width: 150px;"><center><b>พงส.</b></center></td><td style="width: 150px;"><center><b>หัวหน้าสถานี</b></center></td></tr>'+
+						'<tr><td><center><b>ชื่อ</b></td><td><center style="font-size:10px;">'+data[i][attr[5]]+'</center></td><td><center style="font-size:10px;">'+data[i+1][attr[5]]+'</center></td><td><center style="font-size:10px;">'+data[i+2][attr[5]]+'</center></td></tr>'+
 						'<tr><td><center><b>รหัสผู้ใช้งาน</b></center></td><td><center>'+data[i][attr[2]]+'</center></td><td><center>'+data[i+1][attr[2]]+'</center></td><td><center>'+data[i+2][attr[2]]+'</center></td></tr>'+
 						'<tr><td><center><b>รหัสผ่าน</b></center></td><td><center>12345678</center></td><td><center>12345678</center></td><td><center>12345678</center></td></tr>'+
 						'</table></div>';
 					count++;	
 					
-					var orgcode = data[i][attr[6]];
+					var orgcode = data[i][attr[7]];
 					var findIndex = dataGroup.findIndex(x => x.ORGCODE === orgcode);
 					if(findIndex == -1){
-						dataGroup.push({'ORGCODE' : orgcode , 'ORGABBR' : data[i][attr[5]] , 'item' : []});
+						dataGroup.push({'ORGCODE' : orgcode , 'ORGABBR' : data[i][attr[6]] , 'item' : []});
 						findIndex = dataGroup.length-1;
 					}
 					
-					dataGroup[findIndex].item.push({'FR' : data[i][attr[2]] , 'IR' : data[i+1][attr[2]] , 'LD' : data[i+2][attr[2]]});
+					dataGroup[findIndex].item.push({'FR' : data[i][attr[2]] ,'FR_NAME' : data[i][attr[5]] , 'IR' : data[i+1][attr[2]] ,'IR_NAME' : data[i+1][attr[5]], 'LD' : data[i+2][attr[2]] ,'LD_NAME' : data[i+2][attr[5]]});
 					//console.log(attr);
 				}
 				$('#count_org').html('จำนวน '+count+' สถานี');
