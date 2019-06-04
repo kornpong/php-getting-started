@@ -91,6 +91,7 @@
 						minimumInputLength: 1,
 						minimumResultsForSearch: 10,
 						maximumSelectionSize: 10,
+						allowClear: true,
 						data: $.map(data, function (item) {
 									return {
 										text: item.ORGABBR,
@@ -122,10 +123,11 @@
 						else{
 							$('#result').html("Not Found.");
 						}
-					});
-				});
-
-				
+					});//end
+					
+				  $('#select_org').select2("val", null);
+					
+				});	//end get json
 			}
 			
 			
