@@ -47,16 +47,34 @@
 			<label>เลือกหน่วยงาน : </label>
 			<select id="select_org" class="form-control" data-placeholder="พิมพ์ชื่อหน่วยงาน" style="width:250px;"></select>
 		</div>
+		<a id="btn-send-to-chat" href="javascript:void(0);">Send To Chat</a>
 		<div id="result"></div>
 	</body>
 	<script src="assets/js/jquery-1.10.2.min.js"></script>
 	<script src="assets/js/jszip.js"></script>
 	<script src="assets/js/xlsx.js"></script>
 	<script src="assets/js/select2.min.js"></script>
+	<script src="https://d.line-scdn.net/liff/1.0/sdk.js"></script>
 	<script type="text/javascript">
 		
 		
 		$(document).ready(function(){
+			//init LIFF
+			liff.init(function (data) {
+				console.log('liff.init');
+				initializeApp(data);
+			});
+			
+			function initializeApp(data) {
+				/* let urlParams = new URLSearchParams(window.location.search);
+				$(‘#name’).val(urlParams.toString());
+				$(‘#userid’).val(data.context.userId);
+
+				$(‘#UserInfo’).val(profile.displayName); */
+				console.log(data);
+			}
+				
+				
 			$('#select_room').select2({
 					ajax : { 
 					url : "assets/data/data_room.json?v="+Math.floor(Date.now() / 1000),
@@ -129,6 +147,22 @@
 					
 				});	//end get json
 			}
+			
+			$('#btn-send-to-chat').on('click',function(e){
+				e.preventDefault();
+				liff.sendMessages([{
+		            type: 'text',
+		            text: "You've successfully sent a message! Hooray!"
+		        }, {
+		            type: 'sticker',
+		            packageId: '2',
+		            stickerId: '144'
+		        }]).then(function () {
+		            window.alert("Message sent");
+		        }).catch(function (error) {
+		            window.alert("Error sending message: " + error);
+		        });
+			});
 			
 			
 		});
