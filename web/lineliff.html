@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta http-equiv='content-language' content='th' />
+		<meta charset="utf-8">
+		<title>User Training</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<style>
+			@media print  
+			{
+				div{
+					page-break-inside: avoid;
+				}
+				
+				.no-print, .no-print *
+				{
+					display: none !important;
+				}
+			}
+			label {
+				display: inline-block;
+				max-width: 100%;
+				margin-bottom: 5px;
+				font-weight: 700;
+			}
+			.form-group {
+				margin-bottom: 15px;
+			}
+			
+			table {
+			  border-collapse: collapse;
+			}
+
+			table, th, td {
+			  border: 1px solid #a09c9c;
+			}
+		</style>
+	</head>
+	<body>
+		<a id="btn-send-to-chat" href="javascript:void(0);">Send To Chat</a>&nbsp;
+		<a id="btn-get-access" href="javascript:void(0);">GetAccess</a>&nbsp;
+		<a id="btn-get-profile" href="javascript:void(0);">GetProfile</a>&nbsp;
+		<div id="result"></div>
+		<div id="content"></div>
+	</body>
+	<script src="assets/js/jquery-1.10.2.min.js"></script>
+	<script src="assets/js/jszip.js"></script>
+	<script src="assets/js/xlsx.js"></script>
+	<script src="assets/js/select2.min.js"></script>
+	<script src="https://d.line-scdn.net/liff/1.0/sdk.js"></script>
+	<script type="text/javascript">
+		
+		
+		$(document).ready(function(){
+			//init LIFF
+			liff.init(function (data) {
+				console.log('liff.init');
+				initializeApp(data);
+			});
+			
+			function initializeApp(data) {
+				/* let urlParams = new URLSearchParams(window.location.search);
+				$(‘#name’).val(urlParams.toString());
+				$(‘#userid’).val(data.context.userId);
+
+				$(‘#UserInfo’).val(profile.displayName); */
+				console.log(data);
+				$('#result').html(JSON.stringify(data));
+			}
+
+			$('#btn-send-to-chat').on('click',function(e){
+				e.preventDefault();
+				liff.sendMessages([{
+		            type: 'text',
+		            text: 'test'
+		        }]).catch(function (error) {
+		            window.alert("Error sending message: " + error);
+		        });
+			});
+			
+			$('#btn-get-access').on('click',function(e){
+				e.preventDefault();
+				var accessToken = liff.getAccessToken();
+				$('#content').html('accessToken : '+accessToken);
+			});
+			
+			$('#btn-get-profile').on('click',function(e){
+				e.preventDefault();
+				liff.getProfile().then(function (profile) {
+					$('#content').html(JSON.stringify(profile));
+				}).catch(function (error) {
+			     	$('#content').html('Error getting profile:  : '+error);
+			    });
+			});
+			
+			
+		});
+	</script>
+</html>
